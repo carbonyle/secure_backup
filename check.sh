@@ -6,13 +6,13 @@ if [ -f /home/carbonyle/Documents/Backup/check.log ];
 then
         for f in $FILES 
         do
-                md5sum "$f" >> /home/carbonyle/Documents/Backup/check.log
+                shasum -a 256 "$f" >> /home/carbonyle/Documents/Backup/check.log
         done
 else
 touch /home/carbonyle/Documents/Backup/check.log &&
         for f in $FILES 
         do
-                md5sum "$f" >> /home/carbonyle/Documents/Backup/check.log
+                shasum -a 256 "$f" >> /home/carbonyle/Documents/Backup/check.log
         done
 fi
 
