@@ -50,7 +50,7 @@ if [ -f ~/Backup/sha-256.log ];
 then
    shasum -a 256 ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
 else
-   touch ~/Backup/md5.log && shasum -a 256 ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
+   touch ~/Backup/sha-256.log && shasum -a 256 ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
 fi
 
 #sync to server
