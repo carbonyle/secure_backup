@@ -22,31 +22,35 @@ fi
 
 #backup
 
-if [ -f ~/Backup/"$(date '+%d.%b.%Y').tar.gz.gpg" ];
+if [ -f ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" ];
 then
    echo "Backup already performed, try later" && exit 1
 else
 
-tar -zcf ~/Backup/"$(date '+%d.%b.%Y').tar.gz" ~/Documents ~/OtherFoldersToBackup
+tar -zcf ~/Backup/"$(date '+%d.%m.%Y').tar.gz" ~/Documents/Job ~/Library/Application\ Support/Pcsxr/ ~/Library/Application\ Support/OpenEmu/Save\ States/ ~/Documents/GTA\ San\ Andreas\ User\ Files/
+fi
 
 #test
 
-touch ~/Backup/"$(date '+%d.%b.%Y').log"
-tar -ztvvf ~/Backup/"$(date '+%d.%b.%Y').tar.gz" >> ~/Backup/"$(date '+%d.%b.%Y').log"
-clear
+if tar tf ~/Backup/"$(date '+%d.%m.%Y').tar.gz" &> /dev/null;
+then
+        echo "archive integrity check passed"
+
+else    echo "corrupted archive" && exit
+fi
 
 #encrypt
 
-gpg -r carbonyle -e ~/Backup/"$(date '+%d.%b.%Y').tar.gz"
-rm ~/Backup/"$(date '+%d.%b.%Y').tar.gz"
+gpg -r gaetan -e ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
+rm ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
 
 #generate sha-256
 
 if [ -f ~/Backup/sha-256.log ];
 then
-   shasum -a 256 ~/Backup/"$(date '+%d.%b.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
+   shasum -a 256 ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
 else
-   touch ~/Backup/md5.log && shasum -a 256 ~/Backup/"$(date '+%d.%b.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
+   touch ~/Backup/md5.log && shasum -a 256 ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" >> ~/Backup/sha-256.log
 fi
 
 #sync to server
@@ -58,14 +62,14 @@ then
 ~/Desktop/rsync_3.1.2dev -avhzP -e "ssh -p 4321" ~/Backup carbonyle@carbonyle.net:/home/carbonyle/Documents/
 
 else
-~/Desktop/rsync_3.1.2dev -avhzP -e "ssh -p 4321" ~/Backup carbonyle@LocalPath
+~/Desktop/rsync_3.1.2dev -avhzP -e "ssh -p 4321" ~/Backup carbonyle@192.168.1.116:/home/carbonyle/Documents/
 
 fi
 
-#ssh to server, run check script, and quit
+clear
 
-ssh -t carbonyle 'rm /home/carbonyle/Documents/Backup/check.log && /home/carbonyle/Documents/Backup/check && cat /home/carbonyle/Documents/Backup/check.log && exit'
+#test if local sha-256 hash matches remote and print status
 
-#cat local sha-256
+test "$(tail -n 1 ~/Backup/sha-256.log | head -c 64)" == "$(ssh -t carbonyle 'shasum -a 256 ~/Documents/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" | tail -n 1 | head -c 64')" && echo "Backup successful" || echo "Local hash doesn't match remote, backup is corrupted."
 
-cat ~/Backup/sha-256.log
+
