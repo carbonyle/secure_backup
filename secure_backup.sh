@@ -10,8 +10,12 @@
 
 if system_profiler SPUSBDataType | grep -q Yubikey;
 then
+
 pkill gpg-agent
-gpg-agent --use-standard-socket --daemon 
+export SSH_AUTH_SOCK=~/.gnupg/S.gpg-agent.ssh
+export PINENTRY_USER_DATA="USE_CURSES=1"
+gpg-connect-agent "getinfo ssh_socket_name" /bye
+gpg-agent --use-standard-socket --daemon
 clear
 
 else
@@ -25,7 +29,7 @@ then
    echo "Backup already performed, try later" && exit 1
 else
 
-tar -zcf ~/Backup/"$(date '+%d.%m.%Y').tar.gz" ~/Documents
+tar -zcf ~/Backup/"$(date '+%d.%m.%Y').tar.gz" ~/Documents/
 fi
 
 #test
@@ -47,6 +51,7 @@ rm ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
 
 pkill gpg-agent
 export SSH_AUTH_SOCK=~/.gnupg/S.gpg-agent.ssh
+export PINENTRY_USER_DATA="USE_CURSES=1"
 gpg-connect-agent "getinfo ssh_socket_name" /bye
 gpg-agent --use-standard-socket --daemon
 clear
