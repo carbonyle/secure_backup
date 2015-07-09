@@ -43,7 +43,7 @@ fi
 
 #encrypt & sign
 
-gpg -r gaetan -e ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
+gpg -r $USER -e ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
 gpg -sb ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg"
 rm ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
 
@@ -58,14 +58,17 @@ clear
 
 #sync to server
 
-read -r -p "Upload to [P]rism or to [c]arbonyle.net? " response
+read -p "$(echo -e 'Upload to [P]rism or to [c]arbonyle.net? Type [L] for local file only \n\b')" response
 
 if [[ $response =~ ^([cC])$ ]]
 then
-~/Desktop/rsync_3.1.2dev -avhzP -e "ssh -p 4321" ~/Backup carbonyle@carbonyle.net:/home/carbonyle/Documents/
+~/git/rsync_3.1.2dev -avhzP -e "ssh -F /Users/gaetan/.ssh/config" ~/Backup carbonyle:~/Documents/ && echo "Remote backup operation finished"
 elif [[ $response =~ ^([pP])$ ]]
 then
-~/Desktop/rsync_3.1.2dev -avhzP -e "ssh -p 4321" ~/Backup carbonyle@192.168.1.116:/home/carbonyle/Documents/
+~/git/rsync_3.1.2dev -avhzP -e "ssh -F /Users/gaetan/.ssh/config" ~/Backup prism:~/Documents/ && echo "Remote backup operation finished, Welcome HOME"
+elif [[ $response =~ ^([lL])$ ]]
+then
+echo "Local backup finished, this backup will be uploaded on your next remote backup operation"
 else
 echo "Invalid choice" && exit 1
 fi
