@@ -3,7 +3,7 @@
 #  backup script
 #
 #
-#  Created by Gaëtan Cherbuin on 15.06.15.
+#  Created by Gaëtan Cherbuin on 15.06.15
 #
 
 #prepare gpg
@@ -43,7 +43,7 @@ fi
 
 #encrypt & sign
 
-gpg -r $USER -e ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
+gpg -r $USER --hidden-recipient $USER --throw-keyids -e ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
 gpg -sb ~/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg"
 rm ~/Backup/"$(date '+%d.%m.%Y').tar.gz"
 
@@ -72,3 +72,5 @@ echo "Local backup finished, this backup will be uploaded on your next remote ba
 else
 echo "Invalid choice" && exit 1
 fi
+
+#test "$(tail -n 1 ~/Backup/sha-256.log | head -c 64)" == "$(ssh -t carbonyle 'shasum -a 256 ~/Documents/Backup/"$(date '+%d.%m.%Y').tar.gz.gpg" | tail -n 1 | head -c 64')" && echo "Backup successful" || echo "Local hash doesn't match remote, backup is corrupted."
